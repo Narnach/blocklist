@@ -1,6 +1,11 @@
 require File.join(File.dirname(__FILE__), %w[.. spec_helper])
 require 'blocklist/cli'
-require 'fakefs/safe'
+begin
+  require 'fakefs/safe'
+rescue LoadError
+  $stderr.puts "!! You need to install fakefs to run the CLI specs.\n!! Look on http://github/defunkt/fakefs or use gemcutter.org."
+  exit 1
+end
 
 describe Blocklist::Cli do
   before(:each) do
