@@ -60,6 +60,24 @@ describe Blocklist do
       STR
     end
   end
+
+  describe '#block' do
+    it 'should find the first block by name' do
+      bl = Blocklist.new
+      bl.parse(<<-STR.strip)
+# localhost
+127.0.0.1       localhost
+
+# blocked
+127.0.0.1       news.ycombinator.com ycombinator.com
+      STR
+      bl.block('blocked').lines.first.domains.should == %w[news.ycombinator.com ycombinator.com]
+    end
+
+    it 'should return nil if no block can be found' do
+      Blocklist.new.block('nothing').should be_nil
+    end
+  end
 end
 
 describe Blocklist::Block do

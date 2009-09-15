@@ -27,6 +27,10 @@ class Blocklist
     nil
   end
 
+  def block(name)
+    blocks.find {|block| block.name == name}
+  end
+
   def to_s
     blocks.join("\n\n")
   end
