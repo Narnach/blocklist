@@ -1,0 +1,58 @@
+= Blocklist
+Blocklist manages /etc/hosts with the goal of routing distracting websites to localhost. It also works well as an ad blocker.
+
+== Usage
+
+You'll need read/write access to /etc/hosts to make this work. It might also be a good idea to keep a backup of /etc/hosts, just in case. Keeping it in a git repo works for me. YMMV.
+
+Blocklist makes a couple of assumtions about how /etc/hosts is set up. Here's a typical dummy file:
+  # localhost
+  127.0.0.1       localhost
+  255.255.255.255 broadcasthost
+  ::1             localhost
+  
+  # disabled
+  # 127.0.0.1       example.org
+
+The above shows that there are blocks of lines, separated by one or more blank lines. Each of these blocks starts with a single comment that names it. Commented-out blocks are prefixed with "# "; hash-space.
+
+=== List all blocks
+  $ blocklist list
+  localhost
+  ads
+  disabled
+
+=== Toggle a block to be commented-out or not
+  $ blocklist toggle disabled
+  # localhost
+  127.0.0.1       localhost
+  255.255.255.255 broadcasthost
+  ::1             localhost
+  
+  # disabled
+  127.0.0.1       example.org
+
+=== Add a domain
+Add a domain to a new or existing block. It automatically adds the subdomain you specified, but it also adds the full domain and the www. subdomain.
+There is support for domains on a TLD that always have a subdomain. The only one that is added out of the box is .co.uk. When you need more, please submit a patch.
+
+  $ blocklist add someblock news.example.org
+  # localhost
+  127.0.0.1       localhost
+  255.255.255.255 broadcasthost
+  ::1             localhost
+
+  # disabled
+  127.0.0.1       example.org
+  
+  # someblock
+  127.0.0.1       news.example.org example.org www.example.org
+
+== Development
+
+You'll need rspec and fakefs to get the specs running.
+
+Patches are always welcome. Please add tests or specs and create a github issue or send a pull request.
+
+== Authors
+* Wes 'Narnach' Oldenbeuving <http://github.com/Narnach>
