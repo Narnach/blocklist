@@ -27,6 +27,19 @@ describe Blocklist do
       bl.blocks.first.should == Blocklist::Block.new('blocked',
         Blocklist::Line.new('127.0.0.1', *%w[news.ycombinator.com ycombinator.com]))
     end
+
+    it 'should handle ipv6 addresses' do
+      hosts = <<-STR.strip
+# localhost
+127.0.0.1       localhost
+::1             localhost
+      STR
+      bl = Blocklist.new
+      bl.parse(hosts)
+      bl.blocks.first.should == Blocklist::Block.new('localhost',
+        Blocklist::Line.new('127.0.0.1', 'localhost'),
+        Blocklist::Line.new('::1', 'localhost'))
+    end
   end
 
   describe '#to_s' do

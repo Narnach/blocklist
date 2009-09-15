@@ -57,8 +57,9 @@ class Blocklist
 
   class Line
     COMMENT_PREFIX = /\A#+\s+/
-    IPV4 = /\A\d{1,3}(\.\d{1,3}){3}\s+/
-    IPV6 = /\A[0-9a-fA-F]{0,4}(::?\A[0-9a-fA-F]{0,4}){1,7}\s+/
+    IPV4 = /\A\d{1,3}(\.\d{1,3}){3}/
+    # Took this huge regexp from http://vernon.mauery.com/content/projects/linux/ipv6_regex
+    IPV6 = /(\A([0-9a-f]{1,4}:){1,1}(:[0-9a-f]{1,4}){1,6}\Z)|(\A([0-9a-f]{1,4}:){1,2}(:[0-9a-f]{1,4}){1,5}\Z)|(\A([0-9a-f]{1,4}:){1,3}(:[0-9a-f]{1,4}){1,4}\Z)|(\A([0-9a-f]{1,4}:){1,4}(:[0-9a-f]{1,4}){1,3}\Z)|(\A([0-9a-f]{1,4}:){1,5}(:[0-9a-f]{1,4}){1,2}\Z)|(\A([0-9a-f]{1,4}:){1,6}(:[0-9a-f]{1,4}){1,1}\Z)|(\A(([0-9a-f]{1,4}:){1,7}|:):\Z)|(\A:(:[0-9a-f]{1,4}){1,7}\Z)|(\A((([0-9a-f]{1,4}:){6})(25[0-5]|2[0-4]d|[0-1]?d?d)(.(25[0-5]|2[0-4]d|[0-1]?d?d)){3})\Z)|(\A(([0-9a-f]{1,4}:){5}[0-9a-f]{1,4}:(25[0-5]|2[0-4]d|[0-1]?d?d)(.(25[0-5]|2[0-4]d|[0-1]?d?d)){3})\Z)|(\A([0-9a-f]{1,4}:){5}:[0-9a-f]{1,4}:(25[0-5]|2[0-4]d|[0-1]?d?d)(.(25[0-5]|2[0-4]d|[0-1]?d?d)){3}\Z)|(\A([0-9a-f]{1,4}:){1,1}(:[0-9a-f]{1,4}){1,4}:(25[0-5]|2[0-4]d|[0-1]?d?d)(.(25[0-5]|2[0-4]d|[0-1]?d?d)){3}\Z)|(\A([0-9a-f]{1,4}:){1,2}(:[0-9a-f]{1,4}){1,3}:(25[0-5]|2[0-4]d|[0-1]?d?d)(.(25[0-5]|2[0-4]d|[0-1]?d?d)){3}\Z)|(\A([0-9a-f]{1,4}:){1,3}(:[0-9a-f]{1,4}){1,2}:(25[0-5]|2[0-4]d|[0-1]?d?d)(.(25[0-5]|2[0-4]d|[0-1]?d?d)){3}\Z)|(\A([0-9a-f]{1,4}:){1,4}(:[0-9a-f]{1,4}){1,1}:(25[0-5]|2[0-4]d|[0-1]?d?d)(.(25[0-5]|2[0-4]d|[0-1]?d?d)){3}\Z)|(\A(([0-9a-f]{1,4}:){1,5}|:):(25[0-5]|2[0-4]d|[0-1]?d?d)(.(25[0-5]|2[0-4]d|[0-1]?d?d)){3}\Z)|(\A:(:[0-9a-f]{1,4}){1,5}:(25[0-5]|2[0-4]d|[0-1]?d?d)(.(25[0-5]|2[0-4]d|[0-1]?d?d)){3}\Z)/
 
     attr_accessor :ip, :domains, :commented
 
@@ -89,12 +90,13 @@ class Blocklist
       return nil if stripped_line == ''
       return Line.new(*stripped_line.split(" ")) unless stripped_line =~ COMMENT_PREFIX
       uncommented_line = stripped_line.gsub(COMMENT_PREFIX, '')
-      if uncommented_line =~ IPV4
-        parsed_line = Line.new(*uncommented_line.split(" "))
+      split_line = uncommented_line.split(" ")
+      if split_line.first =~ IPV4
+        parsed_line = Line.new(*split_line)
         parsed_line.commented = true
         parsed_line
-      elsif uncommented_line =~ IPV6
-        parsed_line = Line.new(*uncommented_line.split(" "))
+      elsif split_line.first =~ IPV6
+        parsed_line = Line.new(*split_line)
         parsed_line.commented = true
         parsed_line
       else # comment or title
