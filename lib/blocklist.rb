@@ -8,17 +8,17 @@ class Blocklist
   def parse(content)
     block = Block.new
     content.each_line do |line|
-      line = line.strip
-      case line
-      when ''     # empty line
-        if block.name or block.lines.size > 0
-          self.blocks << block
-          block = Block.new
-        end
-      when /\A#/  # comment
-        block.name ||= line.gsub(/\A#+\s+/,'')
-      else        # domain
-        block.lines << Line.new(*line.split(" "))
+      parsed_line = Line.parse(line)
+      case parsed_line
+      when nil
+        self.blocks << block
+        block = Block.new
+      when String
+        block.name ||= parsed_line
+      when Line
+        block.lines << parsed_line
+      else
+        raise "Unexpected line: #{line}"
       end
     end
     if block.name or block.lines.size > 0
@@ -46,17 +46,26 @@ class Blocklist
       true
     end
 
+    def toggle_comments
+      lines.each {|line| line.toggle_comment}
+    end
+
     def to_s
       "# #{name}\n" + lines.join("\n")
     end
   end
 
   class Line
-    attr_accessor :ip, :domains
+    COMMENT_PREFIX = /\A#+\s+/
+    IPV4 = /\A\d{1,3}(\.\d{1,3}){3}\s+/
+    IPV6 = /\A[0-9a-fA-F]{0,4}(::?\A[0-9a-fA-F]{0,4}){1,7}\s+/
+
+    attr_accessor :ip, :domains, :commented
 
     def initialize(ip, *domains)
       self.ip = ip
       self.domains = domains
+      self.commented = false
     end
 
     def ==(other)
@@ -66,8 +75,31 @@ class Blocklist
       true
     end
 
+    def toggle_comment
+      self.commented = !commented
+    end
+
     def to_s
-      "%s%s%s" % [ip, " " * (16 - ip.size), domains.join(" ")]
+      prefix = commented ? "# " : ""
+      "%s%s%s%s" % [prefix, ip, " " * (16 - ip.size), domains.join(" ")]
+    end
+
+    def self.parse(line)
+      stripped_line = line.strip
+      return nil if stripped_line == ''
+      return Line.new(*stripped_line.split(" ")) unless stripped_line =~ COMMENT_PREFIX
+      uncommented_line = stripped_line.gsub(COMMENT_PREFIX, '')
+      if uncommented_line =~ IPV4
+        parsed_line = Line.new(*uncommented_line.split(" "))
+        parsed_line.commented = true
+        parsed_line
+      elsif uncommented_line =~ IPV6
+        parsed_line = Line.new(*uncommented_line.split(" "))
+        parsed_line.commented = true
+        parsed_line
+      else # comment or title
+        uncommented_line
+      end
     end
   end
 end

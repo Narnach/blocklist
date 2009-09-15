@@ -47,4 +47,21 @@ describe Blocklist do
       STR
     end
   end
+
+  describe '#toggle_comments' do
+    it 'should toggle lines between commented-out and not commented' do
+      hosts = <<-STR.strip
+# blocked
+127.0.0.1       news.ycombinator.com ycombinator.com
+      STR
+      bl = Blocklist.new
+      bl.parse(hosts)
+      bl.blocks.first.toggle_comments
+      bl.to_s.should_not == hosts
+      bl2 = Blocklist.new
+      bl2.parse(bl.to_s)
+      bl2.blocks.first.toggle_comments
+      bl2.to_s.should == hosts
+    end
+  end
 end
