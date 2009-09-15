@@ -40,10 +40,10 @@ describe Blocklist do
       bl.blocks << block2
       bl.to_s.should == <<-STR.strip
 # localhost
-127.0.0.1 localhost
+127.0.0.1       localhost
 
 # blocked
-127.0.0.1 news.ycombinator.com ycombinator.com
+127.0.0.1       news.ycombinator.com ycombinator.com
       STR
     end
   end

@@ -67,7 +67,7 @@ class Blocklist
     end
 
     def to_s
-      ([ip].concat(domains)).join(" ")
+      "%s%s%s" % [ip, " " * (16 - ip.size), domains.join(" ")]
     end
   end
 end
