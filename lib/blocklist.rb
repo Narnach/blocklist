@@ -1,8 +1,10 @@
 class Blocklist
   attr_accessor :blocks
+
   def initialize
     self.blocks = []
   end
+
   def parse(content)
     block = Block.new
     content.each_line do |line|
@@ -25,33 +27,47 @@ class Blocklist
     nil
   end
 
+  def to_s
+    blocks.join("\n\n")
+  end
+
   class Block
     attr_accessor :name, :lines
+
     def initialize(name=nil, *lines)
       self.name = name
       self.lines = lines
     end
-    
+
     def ==(other)
       return false unless other.class == self.class
       return false unless other.name == self.name
       return false unless other.lines == self.lines
       true
     end
+
+    def to_s
+      "# #{name}\n" + lines.join("\n")
+    end
   end
 
   class Line
     attr_accessor :ip, :domains
+
     def initialize(ip, *domains)
       self.ip = ip
       self.domains = domains
     end
-    
+
     def ==(other)
       return false unless other.class == self.class
       return false unless other.ip == self.ip
       return false unless other.domains == self.domains
       true
+    end
+
+    def to_s
+      ([ip].concat(domains)).join(" ")
     end
   end
 end
