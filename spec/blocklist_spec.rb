@@ -60,7 +60,9 @@ describe Blocklist do
       STR
     end
   end
+end
 
+describe Blocklist::Block do
   describe '#toggle_comments' do
     it 'should toggle lines between commented-out and not commented' do
       hosts = <<-STR.strip
