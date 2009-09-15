@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   bin_files      = %w[blocklist]
   lib_files      = %w[blocklist blocklist/cli]
   spec_files     = %w[blocklist blocklist/cli]
-  other_files    = %w[spec/spec.opts spec/spec_helper.rb]
+  other_files    = %w[spec/spec_helper.rb]
   s.bindir       = "bin"
   s.require_path = "lib"
   s.executables  = bin_files
