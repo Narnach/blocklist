@@ -2,6 +2,7 @@ require 'blocklist'
 
 class Blocklist
   class Cli
+    COMMANDS = %w[add list toggle help]
     def initialize(argv)
       @argv = argv
       @bl = Blocklist.new
@@ -12,20 +13,19 @@ class Blocklist
     end
 
     def run
-      if %w[add list toggle help].include?(@command)
+      if COMMANDS.include? @command
         self.send(@command)
       else
         help "Command unknown: '#{@command}'"
       end
-      nil
     end
-    
+
     protected
-    
+
     def list
       puts @bl.blocks.map {|block| block.name}.join("\n")
     end
-    
+
     def add
       block_name = @argv.shift
       block = @bl.block(block_name) || Blocklist::Block.new(block_name)
@@ -49,17 +49,18 @@ class Blocklist
       display_result
       save if saved_domains.flatten.size > 0
     end
-    
+
     def toggle
       block_name = @argv.shift
       unless block = @bl.block(block_name)
         help "Could not toggle non-existing block '#{block_name}'"
+        return
       end
       block.toggle_comments
       display_result
       save
     end
-    
+
     def help(msg=nil)
       if msg
         $stderr.puts(msg)
@@ -86,15 +87,14 @@ Commands:
   help
     Show this page
   STR
-      exit 1
     end
-    
+
     private
-    
+
     def display_result
       puts @bl unless @quiet
     end
-    
+
     def save
       File.open('/etc/hosts','w') {|f| f.puts(@bl.to_s)} unless @dry_run
     end
