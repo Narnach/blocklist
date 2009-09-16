@@ -28,7 +28,11 @@ class Blocklist
 
     def add
       block_name = @argv.shift
-      block = @bl.block(block_name) || Blocklist::Block.new(block_name)
+      unless block = @bl.block(block_name)
+        block = Blocklist::Block.new(block_name)
+        @bl.blocks << block
+      end
+
 
       domains = block.lines.map {|line| line.domains}.flatten
       saved_domains = @argv.map do |domain|

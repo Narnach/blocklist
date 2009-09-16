@@ -11,7 +11,7 @@ describe Blocklist::Cli do
   before(:each) do
     FakeFS.activate!
   end
-  
+
   after(:each) do
     FakeFS.deactivate!
   end
@@ -49,6 +49,22 @@ describe Blocklist::Cli do
       cli.run
       File.read('/etc/hosts').should == <<-STR
 # localhost
+127.0.0.1       example.org www.example.org
+      STR
+    end
+
+    it 'should create a new block if it does not exist yet' do
+      fake_hosts <<-STR
+# localhost
+127.0.0.1       localhost
+      STR
+      cli = Blocklist::Cli.new(%w[add example example.org])
+      cli.run
+      File.read('/etc/hosts').should == <<-STR
+# localhost
+127.0.0.1       localhost
+
+# example
 127.0.0.1       example.org www.example.org
       STR
     end
