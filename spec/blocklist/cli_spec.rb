@@ -19,6 +19,12 @@ describe Blocklist::Cli do
   def fake_hosts(content='')
     File.open('/etc/hosts','w') {|f| f.puts content}
   end
+  
+  def run(cmd)
+    cli = Blocklist::Cli.new(cmd.split(" "))
+    cli.run
+    cli
+  end
 
   it 'should display help when no command is given' do
     fake_hosts
@@ -45,8 +51,7 @@ describe Blocklist::Cli do
       fake_hosts <<-STR
 # localhost
       STR
-      cli = Blocklist::Cli.new(%w[add localhost example.org])
-      cli.run
+      run 'add localhost example.org'
       File.read('/etc/hosts').should == <<-STR
 # localhost
 127.0.0.1       example.org www.example.org
@@ -58,8 +63,7 @@ describe Blocklist::Cli do
 # localhost
 127.0.0.1       localhost
       STR
-      cli = Blocklist::Cli.new(%w[add example example.org])
-      cli.run
+      run 'add example example.org'
       File.read('/etc/hosts').should == <<-STR
 # localhost
 127.0.0.1       localhost
