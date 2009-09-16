@@ -32,7 +32,10 @@ class Blocklist
         block = Blocklist::Block.new(block_name)
         @bl.blocks << block
       end
-
+      
+      commented_lines = block.lines.inject(0) {|sum, line| line.commented ? sum + 1 : sum}
+      uncommented_lines = block.lines.size - commented_lines
+      comment_new_lines = commented_lines > uncommented_lines
 
       domains = block.lines.map {|line| line.domains}.flatten
       saved_domains = @argv.map do |domain|
@@ -45,7 +48,9 @@ class Blocklist
         subdomain = dom_no_tld.size == 1 ? nil : dom_no_tld[0...-1].join(".")
         new_domains = [nil, 'www', subdomain].uniq.map {|sub| [sub, domain_base, tld].compact.join(".")} - domains
         if new_domains.size > 0
-          block.lines << Blocklist::Line.new('127.0.0.1', *new_domains)
+          new_line = Blocklist::Line.new('127.0.0.1', *new_domains)
+          new_line.commented = comment_new_lines
+          block.lines << new_line
           domains.concat(new_domains)
         end
         new_domains

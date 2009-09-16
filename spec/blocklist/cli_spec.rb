@@ -72,5 +72,19 @@ describe Blocklist::Cli do
 127.0.0.1       example.org www.example.org
       STR
     end
+
+
+    it 'should add a domain commented-out if there are more commented-out domains in the block' do
+      fake_hosts <<-STR
+# localhost
+# 127.0.0.1       localhost
+      STR
+      run 'add localhost example.org'
+      File.read('/etc/hosts').should == <<-STR
+# localhost
+# 127.0.0.1       localhost
+# 127.0.0.1       example.org www.example.org
+      STR
+    end
   end
 end
