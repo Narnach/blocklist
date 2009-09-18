@@ -3,8 +3,8 @@ Gem::Specification.new do |s|
   s.name         = 'blocklist'
   s.summary      = "Blocklist manages /etc/hosts"
   s.description  = "Blocklist manages /etc/hosts with the goal of routing distracting websites to localhost. It also works well as an ad blocker."
-  s.version      = '0.1.3'
-  s.date         = '2009-09-16'
+  s.version      = '0.1.4'
+  s.date         = '2009-09-18'
   s.platform     = Gem::Platform::RUBY
   s.authors      = ["Wes Oldenbeuving"]
   s.email        = "narnach@gmail.com"
