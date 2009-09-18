@@ -27,6 +27,7 @@ class Blocklist
     end
 
     def add
+      auto_add = @argv.delete('-a')
       block_name = @argv.shift
       unless block = @bl.block(block_name)
         block = Blocklist::Block.new(block_name)
@@ -46,7 +47,9 @@ class Blocklist
         dom_no_tld = dom_segments[0...-tld_size]
         domain_base = dom_no_tld.last
         subdomain = dom_no_tld.size == 1 ? nil : dom_no_tld[0...-1].join(".")
-        new_domains = [nil, 'www', subdomain].uniq.map {|sub| [sub, domain_base, tld].compact.join(".")} - domains
+        subdomains_to_add = [subdomain]
+        subdomains_to_add += [nil, 'www'] if auto_add
+        new_domains = subdomains_to_add.uniq.map {|sub| [sub, domain_base, tld].compact.join(".")} - domains
         if new_domains.size > 0
           new_line = Blocklist::Line.new('127.0.0.1', *new_domains)
           new_line.commented = comment_new_lines
@@ -85,10 +88,10 @@ Flags:
     Quiet mode. Minimizes the output to STDOUT
 
 Commands:
-  add <block name> [domain1] .. [domainN]
+  add [-a] <block name> [domain1] .. [domainN]
     Add a number of domains to the specified block.
-    Each domain will automatically be added with the www subdomain and without subdomain.
     Duplicate domains are skipped.
+    When -a is given, the base domain and www-subdomain for each domain wil automatically be added.
   list
     Shows a list of all blocks currently defined
   toggle <block name>

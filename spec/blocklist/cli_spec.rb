@@ -48,14 +48,25 @@ describe Blocklist::Cli do
   end
 
   describe 'add' do
-    it "should add a domain and its www-subdomain to a block's lines" do
+    it "should add the chosen subdomain to a block's lines" do
       fake_hosts <<-STR
 # localhost
       STR
       run 'add localhost example.org'
       File.read('/etc/hosts').should == <<-STR
 # localhost
-127.0.0.1       example.org www.example.org
+127.0.0.1       example.org
+      STR
+    end
+
+    it "should add the chosen subdomain, the domain and the www-subdomain to a block's lines when -a is given" do
+      fake_hosts <<-STR
+# localhost
+      STR
+      run 'add -a localhost news.example.org'
+      File.read('/etc/hosts').should == <<-STR
+# localhost
+127.0.0.1       news.example.org example.org www.example.org
       STR
     end
 
@@ -70,7 +81,7 @@ describe Blocklist::Cli do
 127.0.0.1       localhost
 
 # example
-127.0.0.1       example.org www.example.org
+127.0.0.1       example.org
       STR
     end
 
@@ -84,7 +95,7 @@ describe Blocklist::Cli do
       File.read('/etc/hosts').should == <<-STR
 # localhost
 # 127.0.0.1       localhost
-# 127.0.0.1       example.org www.example.org
+# 127.0.0.1       example.org
       STR
     end
   end
