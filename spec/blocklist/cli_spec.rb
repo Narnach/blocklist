@@ -20,8 +20,9 @@ describe Blocklist::Cli do
     File.open('/etc/hosts','w') {|f| f.puts content}
   end
   
-  def run(cmd)
+  def run(cmd, silent=true)
     cli = Blocklist::Cli.new(cmd.split(" "))
+    cli.stub!(:puts) if silent
     cli.run
     cli
   end
